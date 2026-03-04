@@ -27,6 +27,7 @@ services:
       - "8000:8000"
     volumes:
       - backend_logs:/app/logs
+      - ../ml-latest-small-data:/app/ml-latest-small-data:ro
     depends_on:
       db:
         condition: service_healthy
