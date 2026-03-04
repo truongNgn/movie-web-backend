@@ -28,6 +28,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/movie-web/backend
-            docker compose -f docker-compose.prod.yml up -d --build
-            docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate
+            docker compose -f docker-compose.yml up -d --build
+            docker compose -f docker-compose.yml exec -T backend python manage.py migrate
             docker system prune -af
