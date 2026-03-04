@@ -20,6 +20,24 @@ jobs:
           source: "."
           target: "/home/ubuntu/movie-web/backend"
 
+      - name: Create .env file on EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cat > /home/ubuntu/movie-web/backend/.env << 'EOF'
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            DEBUG=${{ secrets.DEBUG }}
+            ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            EOF
+
       - name: Restart Docker Containers
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -28,6 +46,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/movie-web/backend
-            docker compose -f docker-compose.yml up -d --build
-            docker compose -f docker-compose.yml exec -T backend python manage.py migrate
-            docker system prune -af
+            docker compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate
