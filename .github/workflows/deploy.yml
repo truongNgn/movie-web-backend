@@ -19,32 +19,25 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "."
           target: "/home/ubuntu/movie-web/backend"
+          overwrite: true
 
-      - name: Create .env file on EC2
+      - name: Create .env and Deploy
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cat > /home/ubuntu/movie-web/backend/.env << 'EOF'
-            SECRET_KEY=${{ secrets.SECRET_KEY }}
-            DEBUG=${{ secrets.DEBUG }}
-            ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_HOST=${{ secrets.DB_HOST }}
-            DB_PORT=${{ secrets.DB_PORT }}
-            EOF
+            ENV_FILE="/home/ubuntu/movie-web/backend/.env"
+            echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > $ENV_FILE
+            echo "DEBUG=${{ secrets.DEBUG }}" >> $ENV_FILE
+            echo "ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}" >> $ENV_FILE
+            echo "DB_NAME=${{ secrets.DB_NAME }}" >> $ENV_FILE
+            echo "DB_USER=${{ secrets.DB_USER }}" >> $ENV_FILE
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $ENV_FILE
+            echo "DB_HOST=${{ secrets.DB_HOST }}" >> $ENV_FILE
+            echo "DB_PORT=${{ secrets.DB_PORT }}" >> $ENV_FILE
 
-      - name: Restart Docker Containers
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
             cd /home/ubuntu/movie-web/backend
             docker compose -f docker-compose.prod.yml up -d --build
             docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate
