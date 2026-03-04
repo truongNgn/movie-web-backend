@@ -17,9 +17,10 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "."
+          source: "Dockerfile,entrypoint.sh,manage.py,requirements.txt,docker-compose.prod.yml,core,movies"
           target: "/home/ubuntu/movie-web/backend"
           overwrite: true
+          strip_components: 0
 
       - name: Create .env and Deploy
         uses: appleboy/ssh-action@v0.1.7
